@@ -30,14 +30,20 @@ class DigitalSignal:
 
         self.fft_array = fft.rfft(self.source_data)
         self.freq_array = fft.rfftfreq(len(self.source_data), 1./self.sampling_frequency)
+        print('fft_array[0] = ', self.fft_array[0])
+        print('type fft_array[0] = ', type(self.fft_array[0]))
 
-        for i, value in self.fft_array:
-            if value < low:
-                freq_array[i] = 0
-            if value > high:
-                freq_array = 0
+        print('freq_array[0] = ', self.freq_array[0])
+        print('type freq_array[0] = ', type(self.freq_array[0]))
 
-        return self.fft_array
+        for i in self.freq_array:
+            print(i)
+            # if value < low:
+            #     freq_array[i] = 0
+            # if value > high:
+            #     freq_array = 0
+
+        return
 
     @classmethod
     def from_wav(cls, filename):
