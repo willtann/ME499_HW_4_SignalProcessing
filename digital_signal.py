@@ -14,9 +14,6 @@ class DigitalSignal:
         self.nyquist = max(source_data)
         self.freq_high = self.nyquist
 
-        self.freq_array = None
-        self.fft_array = None
-
     def bandpass(self, low=None, high=None):
         """
         :param low: optional argument for bandpass lowe cutoff
@@ -28,22 +25,46 @@ class DigitalSignal:
         if high is None:
             high = self.nyquist
 
-        self.fft_array = fft.rfft(self.source_data)
-        self.freq_array = fft.rfftfreq(len(self.source_data), 1./self.sampling_frequency)
-        print('fft_array[0] = ', self.fft_array[0])
-        print('type fft_array[0] = ', type(self.fft_array[0]))
+        fft_array = fft.rfft(self.source_data)
+        freq_array = fft.rfftfreq(len(self.source_data), 1./self.sampling_frequency)
+        # Find indexes where bandpass cutoffs are exceeded
+        low_cutoff_indexes = np.where(freq_array < low)
+        high_cutoff_indexes = np.where(freq_array > high)
+        # Replace values that exceed bandpass with zero (this is the filter)
+        np.put(fft_array, low_cutoff_indexes, 0)
+        np.put(fft_array, high_cutoff_indexes, 0)
+        # Store results and cutoff frequencies
+        self.filtered_data = fft.irfft(fft_array).astype(np.int16)
+        self.freq_low = low
+        self.freq_high = high
+        return self.filtered_data
 
-        print('freq_array[0] = ', self.freq_array[0])
-        print('type freq_array[0] = ', type(self.freq_array[0]))
+    def subset_signal(self, start=None, end=None):
+        if start is None:
+            start = 0.0
+        if end is None:
+            # Length in seconds is number of samples/sample frequency
+            end = len(self.source_data)/self.sampling_frequency
+        return np.arange(start, end, 1/self.sampling_frequency)
 
-        for i in self.freq_array:
-            print(i)
-            # if value < low:
-            #     freq_array[i] = 0
-            # if value > high:
-            #     freq_array = 0
+    def sine_wav(self, filename, start=None, end=None):
+        if start is None:
+            start = 0.0
+        if end is None:
+            # Length in seconds is number of samples/sample frequency
+            end = len(self.source_data)/self.sampling_frequency
 
-        return
+        time = np.arange(0, len(self.source_data)/self.sampling_frequency, 1/self.sampling_frequency)
+
+        time_lower = np.where(time < start)
+        # print(time_lower)
+        time_upper = np.where(time > end)
+        print(len(time_upper[0]))
+        # timeframe = np.delete(time, time_lower[0])
+        # timeframe = np.delete(timeframe, time_upper[0])
+
+        # return wav.write(filename, self.sampling_frequency, output)
+        # return timeframe
 
     @classmethod
     def from_wav(cls, filename):
@@ -58,5 +79,8 @@ if __name__ == '__main__':
 
     print('-----Problem 2-----')
     my_test = DigitalSignal(my_signal[1], my_signal[0])
-    print(my_test.bandpass())
+    print(my_test.bandpass(low=10, high=10500))
 
+    print('-----Problem 3-----')
+    print(my_test.sine_wav('test.wav', 2.5, 4))
+    wav.read('test.wav')
