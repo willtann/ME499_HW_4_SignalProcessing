@@ -44,27 +44,20 @@ class DigitalSignal:
             start = 0.0
         if end is None:
             # Length in seconds is number of samples/sample frequency
-            end = len(self.source_data)/self.sampling_frequency
+            end = (len(self.source_data) - 1)/self.sampling_frequency
         return np.arange(start, end, 1/self.sampling_frequency)
 
-    def sine_wav(self, filename, start=None, end=None):
+    def save_wav(self, filename, start=None, end=None):
+
         if start is None:
             start = 0.0
         if end is None:
             # Length in seconds is number of samples/sample frequency
             end = len(self.source_data)/self.sampling_frequency
 
-        time = np.arange(0, len(self.source_data)/self.sampling_frequency, 1/self.sampling_frequency)
+        time = np.arange(0, (len(self.source_data) - 1)/self.sampling_frequency, 1/self.sampling_frequency)
+        return wav.write(filename, self.sampling_frequency, time)
 
-        time_lower = np.where(time < start)
-        # print(time_lower)
-        time_upper = np.where(time > end)
-        print(len(time_upper[0]))
-        # timeframe = np.delete(time, time_lower[0])
-        # timeframe = np.delete(timeframe, time_upper[0])
-
-        # return wav.write(filename, self.sampling_frequency, output)
-        # return timeframe
 
     @classmethod
     def from_wav(cls, filename):
@@ -72,15 +65,25 @@ class DigitalSignal:
         return f_s,  raw_data
 
 
-if __name__ == '__main__':
-    print('-----Problem 1-----')
-    my_signal = DigitalSignal.from_wav('starwars.wav')
-    print(my_signal)
+# if __name__ == '__main__':
+#     print('-----Problem 1-----')
+#     my_signal = DigitalSignal.from_wav('starwars.wav')
+#     print(my_signal)
+#
+#     print('-----Problem 2-----')
+#     my_test = DigitalSignal(my_signal[1], my_signal[0])
+#     print(my_test.bandpass(low=10, high=10500))
+#
+#     print('-----Problem 3-----')
+#     print(my_test.save_wav('test.wav', 2.5, 4))
+#     wav.read('test.wav')
 
-    print('-----Problem 2-----')
-    my_test = DigitalSignal(my_signal[1], my_signal[0])
-    print(my_test.bandpass(low=10, high=10500))
+    # time_lower = np.where(time < start)
+    # print(time_lower)
+    # time_upper = np.where(time > end)
+    # timeframe = np.delete(time, time_lower[0])
+    # timeframe = np.delete(timeframe, time_upper[0])
 
-    print('-----Problem 3-----')
-    print(my_test.sine_wav('test.wav', 2.5, 4))
-    wav.read('test.wav')
+    # return wav.write(filename, self.sampling_frequency, output)
+    # return timeframe
+
