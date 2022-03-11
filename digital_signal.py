@@ -50,7 +50,7 @@ class DigitalSignal:
         if end is None:
             # Length in seconds is number of samples/sample frequency
             end = len(self.filtered_data)/self.sampling_frequency
-        include_indexes = np.arange(start*self.sampling_frequency, end*self.sampling_frequency+1, 1)
+        include_indexes = np.arange(start*self.sampling_frequency, end*self.sampling_frequency+1, 1).astype(int)
         # output = np.copy(include_indexes) * 0
         # include_values = np.put(output, include_indexes[1], self.filtered_data[include_indexes[1]])
         return self.filtered_data[include_indexes]
