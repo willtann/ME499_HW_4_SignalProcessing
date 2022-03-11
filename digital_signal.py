@@ -49,9 +49,11 @@ class DigitalSignal:
             start = 0.0
         if end is None:
             # Length in seconds is number of samples/sample frequency
-            end = len(self.source_data)/self.sampling_frequency
-
-        return np.arange(start, end, 1/self.sampling_frequency)
+            end = len(self.filtered_data)/self.sampling_frequency
+        include_indexes = np.arange(start*self.sampling_frequency, end*self.sampling_frequency+1, 1)
+        # output = np.copy(include_indexes) * 0
+        # include_values = np.put(output, include_indexes[1], self.filtered_data[include_indexes[1]])
+        return self.filtered_data[include_indexes]
 
     def save_wav(self, filename, start=None, end=None):
         """
@@ -64,7 +66,7 @@ class DigitalSignal:
             start = 0.0
         if end is None:
             # Length in seconds is number of samples/sample frequency
-            end = len(self.source_data)/self.sampling_frequency
+            end = len(self.filtered_data)/self.sampling_frequency
 
         time = np.arange(0, len(self.source_data) / self.sampling_frequency, 1/self.sampling_frequency)
         return wav.write(filename, self.sampling_frequency, time)
@@ -91,6 +93,8 @@ if __name__ == '__main__':
     print('-----Problem 3-----')
     print(my_test.save_wav('test.wav', 2.5, 4))
     wav.read('test.wav')
+
+    print(my_test.subset_signal(1, 2))
 
     # time_lower = np.where(time < start)
     # print(time_lower)
