@@ -11,8 +11,8 @@ class DigitalSignal:
         self.source_data = source_data
         self.filtered_data = source_data.copy()
         self.freq_low = 0
-        self.nyquist = max(source_data)
-        self.freq_high = self.nyquist
+        self.nyquist_freq = sampling_frequency/2
+        self.freq_high = self.nyquist_freq
 
     def bandpass(self, low=None, high=None):
         """
@@ -23,7 +23,7 @@ class DigitalSignal:
         if low is None:
             low = 0
         if high is None:
-            high = self.nyquist
+            high = self.nyquist_freq
 
         fft_array = fft.rfft(self.source_data)
         freq_array = fft.rfftfreq(len(self.source_data), 1./self.sampling_frequency)
@@ -44,8 +44,8 @@ class DigitalSignal:
             start = 0.0
         if end is None:
             # Length in seconds is number of samples/sample frequency
-            end = (len(self.source_data) - 1)/self.sampling_frequency
-        return np.arange(start, end, 1/self.sampling_frequency)
+            end = len(self.source_data)/self.sampling_frequency
+        return len(np.arange(start, end, 1/self.sampling_frequency))
 
     def save_wav(self, filename, start=None, end=None):
 
@@ -55,28 +55,27 @@ class DigitalSignal:
             # Length in seconds is number of samples/sample frequency
             end = len(self.source_data)/self.sampling_frequency
 
-        time = np.arange(0, (len(self.source_data) - 1)/self.sampling_frequency, 1/self.sampling_frequency)
+        time = np.arange(0, len(self.source_data) / self.sampling_frequency, 1/self.sampling_frequency)
         return wav.write(filename, self.sampling_frequency, time)
-
 
     @classmethod
     def from_wav(cls, filename):
         f_s, raw_data = wav.read(filename)
-        return f_s,  raw_data
+        return cls(raw_data, f_s)
 
 
 # if __name__ == '__main__':
 #     print('-----Problem 1-----')
 #     my_signal = DigitalSignal.from_wav('starwars.wav')
 #     print(my_signal)
-#
-#     print('-----Problem 2-----')
-#     my_test = DigitalSignal(my_signal[1], my_signal[0])
-#     print(my_test.bandpass(low=10, high=10500))
-#
-#     print('-----Problem 3-----')
-#     print(my_test.save_wav('test.wav', 2.5, 4))
-#     wav.read('test.wav')
+
+    # print('-----Problem 2-----')
+    # my_test = DigitalSignal(my_signal[1], my_signal[0])
+    # print(my_test.bandpass(low=10, high=10500))
+    #
+    # print('-----Problem 3-----')
+    # print(my_test.save_wav('test.wav', 2.5, 4))
+    # wav.read('test.wav')
 
     # time_lower = np.where(time < start)
     # print(time_lower)
