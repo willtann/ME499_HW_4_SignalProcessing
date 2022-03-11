@@ -40,6 +40,11 @@ class DigitalSignal:
         return self.filtered_data
 
     def subset_signal(self, start=None, end=None):
+        """
+        :param start:
+        :param end:
+        :return:
+        """
         if start is None:
             start = 0.0
         if end is None:
@@ -49,7 +54,12 @@ class DigitalSignal:
         return np.arange(start, end, 1/self.sampling_frequency)
 
     def save_wav(self, filename, start=None, end=None):
-
+        """
+        :param filename:
+        :param start:
+        :param end:
+        :return:
+        """
         if start is None:
             start = 0.0
         if end is None:
@@ -61,6 +71,10 @@ class DigitalSignal:
 
     @classmethod
     def from_wav(cls, filename):
+        """
+        :param filename:
+        :return:
+        """
         f_s, raw_data = wav.read(filename)
         return cls(raw_data, f_s)
 
