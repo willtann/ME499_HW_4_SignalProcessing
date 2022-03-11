@@ -45,7 +45,8 @@ class DigitalSignal:
         if end is None:
             # Length in seconds is number of samples/sample frequency
             end = len(self.source_data)/self.sampling_frequency
-        return len(np.arange(start, end, 1/self.sampling_frequency))
+
+        return np.arange(start, end, 1/self.sampling_frequency)
 
     def save_wav(self, filename, start=None, end=None):
 
@@ -64,18 +65,18 @@ class DigitalSignal:
         return cls(raw_data, f_s)
 
 
-# if __name__ == '__main__':
-#     print('-----Problem 1-----')
-#     my_signal = DigitalSignal.from_wav('starwars.wav')
-#     print(my_signal)
+if __name__ == '__main__':
+    print('-----Problem 1-----')
+    # my_signal = DigitalSignal.from_wav('starwars.wav')
+    # print(my_signal)
 
-    # print('-----Problem 2-----')
-    # my_test = DigitalSignal(my_signal[1], my_signal[0])
-    # print(my_test.bandpass(low=10, high=10500))
-    #
-    # print('-----Problem 3-----')
-    # print(my_test.save_wav('test.wav', 2.5, 4))
-    # wav.read('test.wav')
+    print('-----Problem 2-----')
+    my_test = DigitalSignal.from_wav('starwars.wav')
+    print(my_test.bandpass(low=0, high=10500))
+
+    print('-----Problem 3-----')
+    print(my_test.save_wav('test.wav', 2.5, 4))
+    wav.read('test.wav')
 
     # time_lower = np.where(time < start)
     # print(time_lower)
