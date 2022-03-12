@@ -46,7 +46,7 @@ class DigitalSignal:
         :return:
         """
         if start is None:
-            start = 0.0
+            start = 0
         if end is None:
             # Length in seconds is number of samples/sample frequency
             end = len(self.filtered_data)/self.sampling_frequency
@@ -61,7 +61,7 @@ class DigitalSignal:
         :return:
         """
         if start is None:
-            start = 0.0
+            start = 0
         if end is None:
             # Length in seconds is number of samples/sample frequency
             end = len(self.filtered_data)/self.sampling_frequency
@@ -78,20 +78,17 @@ class DigitalSignal:
         return cls(raw_data, f_s)
 
 
-# if __name__ == '__main__':
-#     print('-----Problem 1-----')
-#     # my_signal = DigitalSignal.from_wav('starwars.wav')
-#     # print(my_signal)
-#
-#     print('-----Problem 2-----')
-#     my_test = DigitalSignal.from_wav('starwars.wav')
-#     print(my_test.bandpass(low=0, high=10500))
-#
-#     print('-----Problem 3-----')
-#
-#     print(my_test.subset_signal(1, 2))
-#
-#     print(my_test.save_wav('testingggg', 1, 2))
+if __name__ == '__main__':
+    print('-----Problem 1-----')
+    # my_signal = DigitalSignal.from_wav('starwars.wav')
+    # print(my_signal)
+
+    print('-----Problem 2-----')
+    my_test = DigitalSignal.from_wav('sinewave1000hz.wav')
+    print(my_test.bandpass(low=1500, high=15000))
+
+    print('-----Problem 3-----')
+    print(my_test.save_wav('testing1000onsinewav.wav', 1, 2))
 
     # time_lower = np.where(time < start)
     # print(time_lower)
