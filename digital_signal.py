@@ -59,6 +59,10 @@ class DigitalSignal:
         if end is None:
             # Length in seconds is number of samples/sample frequency
             end = len(self.filtered_data)/self.sampling_frequency
+
+        if not filename.endswith('.wav'):
+            filename = filename + '.wav'
+
         wav_data = self.subset_signal(start, end)
         return wav.write(filename, self.sampling_frequency, wav_data)
 
@@ -68,12 +72,16 @@ class DigitalSignal:
         :param filename: existing file from which signal data will be extracted
         :return: sample frequency and data from file
         """
+        if not filename.endswith('.wav'):
+            filename = filename + '.wav'
+
         f_s, raw_data = wav.read(filename)
         return cls(raw_data, f_s)
 
 
 # if __name__ == '__main__':
 #     print('Testing bandpass...')
-#     my_test = DigitalSignal.from_wav('sinewave1000hz.wav')
+#     my_test = DigitalSignal.from_wav('sinewave1000hz')
 #     my_test.bandpass(900, 1200)
+
 #     print('Saved file', my_test.save_wav('testing1000.wav'))
