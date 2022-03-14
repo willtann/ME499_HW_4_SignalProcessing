@@ -14,14 +14,12 @@ class DigitalSignal:
         self.nyquist_freq = sampling_frequency/2
         self.freq_high = self.nyquist_freq
 
-    def bandpass(self, low=None, high=None):
+    def bandpass(self, low=0, high=None):
         """
         :param low: optional argument for bandpass lowe cutoff
         :param high: optional argument for bandpass upper cutoff
-        :return:
+        :return: signal data only within specified frequency range
         """
-        if low is None:
-            low = 0
         if high is None:
             high = self.nyquist_freq
 
@@ -39,29 +37,25 @@ class DigitalSignal:
         self.freq_high = high
         return self.filtered_data
 
-    def subset_signal(self, start=None, end=None):
+    def subset_signal(self, start=0, end=None):
         """
-        :param start:
-        :param end:
-        :return:
+        :param start: Timestamp in original audio to be saved as new start time
+        :param end: Timestamp in original audio to be saved as new start time
+        :return: audio signal in specified timeframe from original audio signal
         """
-        if start is None:
-            start = 0
         if end is None:
             # Length in seconds is number of samples/sample frequency
             end = len(self.filtered_data)/self.sampling_frequency
         include_indexes = np.arange(start*self.sampling_frequency + 1, end*self.sampling_frequency, 1).astype(int)
         return self.filtered_data[include_indexes]
 
-    def save_wav(self, filename, start=None, end=None):
+    def save_wav(self, filename, start=0, end=None):
         """
-        :param filename:
-        :param start:
-        :param end:
-        :return:
+        :param filename: required filename for method to save as .wav
+        :param start: Timestamp in original audio to be saved as new start time
+        :param end: Timestamp in original audio to be saved as new start time
+        :return: .wav file with specified timeframe of audio from original audio signal
         """
-        if start is None:
-            start = 0
         if end is None:
             # Length in seconds is number of samples/sample frequency
             end = len(self.filtered_data)/self.sampling_frequency
@@ -71,31 +65,15 @@ class DigitalSignal:
     @classmethod
     def from_wav(cls, filename):
         """
-        :param filename:
-        :return:
+        :param filename: existing file from which signal data will be extracted
+        :return: sample frequency and data from file
         """
         f_s, raw_data = wav.read(filename)
         return cls(raw_data, f_s)
 
 
-if __name__ == '__main__':
-    print('-----Problem 1-----')
-    # my_signal = DigitalSignal.from_wav('starwars.wav')
-    # print(my_signal)
-
-    print('-----Problem 2-----')
-    my_test = DigitalSignal.from_wav('sinewave1000hz.wav')
-    print(my_test.bandpass(low=1500, high=15000))
-
-    print('-----Problem 3-----')
-    print(my_test.save_wav('testing1000onsinewav.wav', 1, 2))
-
-    # time_lower = np.where(time < start)
-    # print(time_lower)
-    # time_upper = np.where(time > end)
-    # timeframe = np.delete(time, time_lower[0])
-    # timeframe = np.delete(timeframe, time_upper[0])
-
-    # return wav.write(filename, self.sampling_frequency, output)
-    # return timeframe
-
+# if __name__ == '__main__':
+#     print('Testing bandpass...')
+#     my_test = DigitalSignal.from_wav('sinewave1000hz.wav')
+#     my_test.bandpass(900, 1200)
+#     print('Saved file', my_test.save_wav('testing1000.wav'))
