@@ -12,7 +12,7 @@ class GUI(QMainWindow):
         QMainWindow.__init__(self)
         self.mydata = None
         self.setWindowTitle('Interactive Bandpass Filter')
-        self.setFixedSize(800, 500)
+        # self.setFixedSize(800, 500)
         self.nyquist = 5000
 
         # Load File
@@ -77,16 +77,12 @@ class GUI(QMainWindow):
         self.mydata = DigitalSignal.from_wav(self.input_filename.text())
         print(self.mydata.source_data)
         self.nyquist = self.mydata.sampling_frequency / 2
-
         self.mydata.start = self.start_entry.value()
         self.mydata.end = self.end_entry.value()
         self.mydata.low = self.low.curr_val
         self.mydata.high = self.high.curr_val
-        self.mydata.subset_signal(self.mydata.start, self.mydata.end)
         self.mydata.bandpass(self.mydata.low, self.mydata.high)
-
-        print(self.mydata.subset_signal())
-        print(self.mydata.subset)
+        self.mydata.subset_signal(self.mydata.start, self.mydata.end)
 
     def graph(self):
         self.draw(len(self.mydata.subset) / self.mydata.sampling_frequency)
@@ -95,7 +91,10 @@ class GUI(QMainWindow):
         self.figure.clear()
         # """ Place holders """
         ax = self.figure.add_subplot(111)
-        ax.plot(data, self.mydata.subset_signal())
+        ax.plot(self.mydata.subset)
+        # ax.set_xlim([self.mydata.start/self.sampling_frequency, self.mydata.end/self.sampling_frequency])
+        ax.set_title('{}.wav'.format(self.input_filename.text()))
+        ax.set_xlabel('Time (s)')
         self.display.draw()
 
     def save(self):
