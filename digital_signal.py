@@ -2,17 +2,22 @@
 import scipy.io.wavfile as wav
 import scipy.fft as fft
 import numpy as np
-
+import matplotlib as plt
 
 class DigitalSignal:
 
     def __init__(self, source_data, sampling_frequency):
+        self.subset = None
         self.sampling_frequency = sampling_frequency
         self.source_data = source_data
         self.filtered_data = source_data.copy()
         self.freq_low = 0
         self.nyquist_freq = sampling_frequency/2
         self.freq_high = self.nyquist_freq
+        self.start = 0
+        self.end = len(source_data)
+        self.low = 0
+        self.high = self.nyquist_freq
 
     def bandpass(self, low=0, high=None):
         """
@@ -47,6 +52,7 @@ class DigitalSignal:
             # Length in seconds is number of samples/sample frequency
             end = len(self.filtered_data)/self.sampling_frequency
         include_indexes = np.arange(start*self.sampling_frequency + 1, end*self.sampling_frequency, 1).astype(int)
+        self.subset = self.filtered_data[include_indexes]
         return self.filtered_data[include_indexes]
 
     def save_wav(self, filename, start=0, end=None):
@@ -66,6 +72,10 @@ class DigitalSignal:
         wav_data = self.subset_signal(start, end)
         return wav.write(filename, self.sampling_frequency, wav_data)
 
+    def plot(self):
+        plt.plot(self.subset_signal()[0:1024])
+        plt.show()
+
     @classmethod
     def from_wav(cls, filename):
         """
@@ -79,9 +89,13 @@ class DigitalSignal:
         return cls(raw_data, f_s)
 
 
-# if __name__ == '__main__':
-#     print('Testing bandpass...')
-#     my_test = DigitalSignal.from_wav('sinewave1000hz')
-#     my_test.bandpass(900, 1200)
+
+if __name__ == '__main__':
+    print('Testing bandpass...')
+    my_test = DigitalSignal.from_wav('starwars')
+    print(my_test.subset_signal())
+    my_test.bandpass(0, 500)
+    print(my_test.subset_signal())
+    print(my_test.subset)
 
 #     print('Saved file', my_test.save_wav('testing1000.wav'))
