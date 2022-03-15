@@ -1,5 +1,5 @@
 from slider import SliderDisplay
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QTextEdit,QHBoxLayout, QPushButton, QLineEdit, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow,QDoubleSpinBox, QWidget, QVBoxLayout, QTextEdit,QHBoxLayout, QPushButton, QLineEdit, QLabel
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib as plt
@@ -11,15 +11,18 @@ from digital_signal import DigitalSignal
 class GUI(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
-        self.subset = None
+        self.end = None
+        self.start = None
+        self.filtered_data = None
+        self.subset_signal = None
         self.freq_high = None
         self.freq_low = None
         self.sampling_frequency = None
         self.source_data = None
         self.mydata = None
         self.nyquist = None
-        self.start = 0
-        self.end = None
+        self.start_entry = 0
+        self.end_entry = None
         self.setWindowTitle('Interactive Bandpass Filter')
         self.setFixedSize(800, 500)
 
@@ -30,6 +33,7 @@ class GUI(QMainWindow):
         load_layout.addWidget(self.input_filename)
         load_layout.addWidget(load_button)
         load_button.clicked.connect(self.og_data)
+        load_button.clicked.connect(self.graph)
 
         # Layout
         widget = QWidget()
@@ -51,13 +55,18 @@ class GUI(QMainWindow):
 
         # Start-End values and reset button
         input_reset_layout = QHBoxLayout()
-        self.start = QLineEdit(self)
-        self.end = QLineEdit(self)
-
+        self.start_entry = QDoubleSpinBox(self)
+        self.end_entry = QDoubleSpinBox(self)
         input_reset_layout.addWidget(QLabel("Start (s):"))
-        input_reset_layout.addWidget(self.start)
+        input_reset_layout.addWidget(self.start_entry)
         input_reset_layout.addWidget(QLabel("End (s):"))
-        input_reset_layout.addWidget(self.end)
+        input_reset_layout.addWidget(self.end_entry)
+        self.start_entry.valueChanged.connect(self.og_data)
+        self.end_entry.valueChanged.connect(self.og_data)
+        self.start_entry.valueChanged.connect(self.graph)
+        self.end_entry.valueChanged.connect(self.graph)
+
+
 
         # Save File
         save_layout = QHBoxLayout()
@@ -69,26 +78,50 @@ class GUI(QMainWindow):
 
 
         # Add Widgets
-        # top_level_layout.addWidget(self.figure)
+        top_level_layout.addWidget(self.display)
         top_level_layout.addLayout(slider_layout)
         top_level_layout.addLayout(input_reset_layout)
         top_level_layout.addLayout(load_layout)
         top_level_layout.addLayout(save_layout)
 
+
     def og_data(self):
         self.mydata = DigitalSignal.from_wav(self.input_filename.text())
-        self.nyquist = self.mydata.nyquist_freq
-        self.source_data = self.mydata.source_data
+        self.filtered_data = self.mydata.bandpass(self.low.curr_val, self.high.curr_val)
         self.sampling_frequency = self.mydata.sampling_frequency
-        self.freq_low = self.mydata.freq_low
-        self.freq_high = self.mydata.freq_high
-        return print(DigitalSignal.from_wav(self.input_filename.text()))
+        self.source_data = self.mydata.source_data
+        self.nyquist = self.mydata.sampling_frequency/2
+        self.start = self.start_entry.value()
+        self.end = self.end_entry.value()
+        self.freq_low = 0
+        self.freq_high = self.nyquist
+        self.subset_signal = self.mydata.subset_signal(self.start, self.end)
+
+    def graph(self):
+        self.draw(len(self.subset_signal))
+
+    def draw(self, data):
+        self.figure.clear()
+        """ Place holders """
+        ax = self.figure.add_subplot(111)
+        """ plot data vs equation with parameters """
+        ax.plot(len(self.subset_signal)/self.sampling_frequency,self.subset_signal)
+        ax.set_xlim([self.start, self.end])  # g
+        ax.set_ylim([min(self.subset_signal), max(self.subset_signal)])
+        """ Fill custom title """
+        # ax.set_title('{}'.format(self.textbox.text()))
+        # ax.set_xlabel('x[rad]')
+        # ax.set_ylabel('sin(x)')
+        self.display.draw()
+
+        # self.subset = self.mydata.subset_signal(self.start, self.end)
 
     def save(self):
-        self.subset = DigitalSignal.subset_signal(self.start, self.end)
-        DigitalSignal.save_wav(self, filename=self.save_name.text(), start=self.start, end=self.end)
+        self.mydata.save_wav(filename=self.save_name.text(), start=self.start, end=self.end)
 
-    # def subset(self):
+    # def refresh(self):
+    #     self.filtered_data = DigitalSignal.bandpass(self.low.curr_val, self.high.curr_val)
+
 
 if __name__ == '__main__':
     app = QApplication([])
